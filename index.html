@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>Marché Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --g1: #1B4332;
+  --g2: #2D6A4F;
+  --g3: #40916C;
+  --g4: #52B788;
+  --g5: #74C69D;
+  --g6: #B7E4C7;
+  --g7: #D8F3DC;
+  --g8: #F0FBF3;
+  --accent: #E9C46A;
+  --accent2: #F4A261;
+  --danger: #E63946;
+  --bg: #F7F9F5;
+  --surface: #FFFFFF;
+  --surface2: #F2F5F0;
+  --text: #1A2718;
+  --text2: #4A5E45;
+  --text3: #8FA889;
+  --border: #DDE8D9;
+  --r: 14px;
+  --r-sm: 8px;
+  --sb: env(safe-area-inset-bottom, 0px);
+  --st: env(safe-area-inset-top, 0px);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+html { height: -webkit-fill-available; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ──────── LAYOUT ──────── */
+#app { display: flex; flex-direction: column; height: 100vh; height: -webkit-fill-available; }
+
+.header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: calc(12px + var(--st)) 16px 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-logo {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--g2), var(--g4));
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(45,106,79,0.35);
+}
+
+.header-logo svg { width: 22px; height: 22px; }
+
+.header-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; color: var(--g1); flex: 1; }
+.header-sub { font-size: 11px; color: var(--text3); font-weight: 400; display: block; margin-top: 1px; letter-spacing: 0.3px; }
+
+.header-action {
+  background: var(--g2); color: #fff;
+  border: none; border-radius: 50%;
+  width: 38px; height: 38px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+.header-action:active { background: var(--g1); }
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 16px;
+  padding-bottom: calc(80px + var(--sb));
+}
+
+.tab-bar {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  display: flex;
+  padding-bottom: var(--sb);
+  z-index: 200;
+}
+
+.tab-item {
+  flex: 1;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 8px 4px;
+  cursor: pointer;
+  border: none; background: none;
+  color: var(--text3);
+  transition: color 0.15s;
+  gap: 3px;
+}
+.tab-item.active { color: var(--g2); }
+.tab-item svg { width: 22px; height: 22px; }
+.tab-item span { font-size: 10px; font-weight: 500; letter-spacing: 0.3px; }
+
+/* ──────── SCREENS ──────── */
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* ──────── CARDS ──────── */
+.card {
+  background: var(--surface);
+  border-radius: var(--r);
+  border: 1px solid var(--border);
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+
+.card-header {
+  padding: 14px 16px;
+  display: flex; align-items: center; gap: 10px;
+  cursor: pointer;
+}
+.card-body { padding: 0 16px 14px; }
+
+/* ──────── PILLS / BADGES ──────── */
+.badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 3px 10px; border-radius: 20px;
+  font-size: 11px; font-weight: 600;
+}
+.badge-green { background: var(--g7); color: var(--g2); }
+.badge-yellow { background: #FFF3CD; color: #7D5A00; }
+.badge-red { background: #FFE5E5; color: var(--danger); }
+.badge-gray { background: var(--surface2); color: var(--text2); }
+
+/* ──────── SUPPLIER COLOR DOTS ──────── */
+.dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+/* ──────── BUTTONS ──────── */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 12px 20px; border-radius: var(--r);
+  font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600;
+  border: none; cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+  text-align: center;
+}
+.btn:active { opacity: 0.75; transform: scale(0.97); }
+.btn-primary { background: var(--g2); color: #fff; }
+.btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+.btn-accent { background: var(--accent); color: var(--g1); }
+.btn-danger { background: #FFE5E5; color: var(--danger); }
+.btn-block { width: 100%; }
+.btn-sm { padding: 8px 14px; font-size: 13px; border-radius: var(--r-sm); }
+
+/* ──────── INPUTS ──────── */
+.input-group { margin-bottom: 14px; }
+label { display: block; font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 5px; letter-spacing: 0.4px; text-transform: uppercase; }
+
+input[type="text"], input[type="date"], select, input[type="number"] {
+  width: 100%; padding: 12px 14px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--r-sm); font-family: 'DM Sans', sans-serif;
+  font-size: 15px; color: var(--text);
+  outline: none; transition: border-color 0.15s;
+  -webkit-appearance: none;
+}
+input:focus, select:focus { border-color: var(--g4); background: #fff; }
+select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%234A5E45' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px; }
+
+/* ──────── SECTION HEADERS ──────── */
+.section-title {
+  font-size: 11px; font-weight: 700; color: var(--text3);
+  letter-spacing: 1px; text-transform: uppercase;
+  margin: 20px 0 8px;
+}
+
+/* ──────── ORDER LIST ITEMS ──────── */
+.order-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+.order-item-header {
+  padding: 14px 16px;
+  display: flex; align-items: center; gap: 12px;
+}
+.order-date-badge {
+  background: var(--g7); color: var(--g2);
+  border-radius: 10px; padding: 4px 10px;
+  font-size: 12px; font-weight: 700;
+  white-space: nowrap;
+}
+.order-info { flex: 1; min-width: 0; }
+.order-supplier { font-size: 15px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.order-stats { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.order-actions { display: flex; gap: 8px; }
+.icon-btn {
+  width: 36px; height: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  border: none; cursor: pointer; transition: background 0.15s;
+}
+.icon-btn:active { opacity: 0.7; }
+.icon-btn-market { background: var(--g7); color: var(--g2); }
+.icon-btn-view { background: #FFF3CD; color: #7D5A00; }
+.icon-btn-del { background: #FFE5E5; color: var(--danger); }
+
+/* ──────── PRODUCT ROW ──────── */
+.product-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+.product-row:last-child { border-bottom: none; }
+
+.product-check {
+  width: 24px; height: 24px;
+  border-radius: 50%; border: 2px solid var(--g4);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; flex-shrink: 0;
+  transition: background 0.15s, border-color 0.15s;
+}
+.product-check.checked { background: var(--g4); border-color: var(--g4); }
+.product-check.checked::after { content: '✓'; color: #fff; font-size: 13px; font-weight: 700; }
+
+.product-name { flex: 1; font-size: 14px; font-weight: 500; line-height: 1.3; }
+.product-name.bought { text-decoration: line-through; color: var(--text3); }
+.product-qty { font-size: 13px; font-weight: 600; color: var(--g2); background: var(--g7); padding: 3px 8px; border-radius: 6px; white-space: nowrap; }
+
+/* ──────── MARKET MODE ──────── */
+.market-progress {
+  background: var(--surface);
+  border-radius: var(--r);
+  padding: 16px;
+  margin-bottom: 16px;
+  border: 1px solid var(--border);
+}
+.progress-bar-bg { background: var(--g7); border-radius: 6px; height: 8px; overflow: hidden; margin: 10px 0 6px; }
+.progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--g3), var(--g4)); border-radius: 6px; transition: width 0.4s ease; }
+.progress-text { display: flex; justify-content: space-between; font-size: 12px; color: var(--text2); font-weight: 500; }
+
+/* ──────── PRODUCT SELECTOR ──────── */
+.product-selector {
+  display: flex; flex-direction: column; gap: 6px;
+  max-height: 320px; overflow-y: auto; -webkit-overflow-scrolling: touch;
+  border: 1px solid var(--border); border-radius: var(--r-sm);
+  background: var(--surface2);
+}
+.product-selector-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.product-selector-item:last-child { border-bottom: none; }
+.product-selector-item.selected { background: var(--g7); }
+.product-selector-item .checkbox {
+  width: 20px; height: 20px; border-radius: 4px;
+  border: 2px solid var(--border); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+}
+.product-selector-item.selected .checkbox { background: var(--g3); border-color: var(--g3); }
+.product-selector-item.selected .checkbox::after { content: '✓'; color: #fff; font-size: 11px; font-weight: 800; }
+.product-selector-item-name { flex: 1; font-size: 14px; }
+.qty-input-small {
+  width: 60px; padding: 5px 8px;
+  border: 1px solid var(--border); border-radius: 6px;
+  font-size: 14px; font-weight: 600; text-align: center;
+  background: #fff; color: var(--text);
+  display: none;
+}
+.product-selector-item.selected .qty-input-small { display: block; }
+
+/* ──────── MISSING PRODUCTS ──────── */
+.supplier-section { margin-bottom: 20px; }
+.supplier-section-header {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r) var(--r) 0 0;
+  padding: 12px 16px;
+}
+.supplier-section-body {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 var(--r) var(--r);
+  padding: 0 16px;
+}
+.missing-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+.missing-item:last-child { border-bottom: none; }
+.missing-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent2); flex-shrink: 0; }
+
+/* ──────── EMPTY STATE ──────── */
+.empty-state {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 48px 24px; text-align: center; gap: 12px;
+}
+.empty-state svg { width: 64px; height: 64px; color: var(--g6); }
+.empty-state p { font-size: 15px; color: var(--text3); font-weight: 400; line-height: 1.5; }
+
+/* ──────── MODAL ──────── */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+  display: flex; align-items: flex-end;
+  z-index: 500;
+  display: none;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--surface);
+  border-radius: 20px 20px 0 0;
+  padding: 20px 20px calc(20px + var(--sb));
+  width: 100%; max-height: 90vh;
+  overflow-y: auto; -webkit-overflow-scrolling: touch;
+  animation: slideUp 0.3s ease;
+}
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.modal-handle { width: 40px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 20px; }
+.modal-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; margin-bottom: 20px; color: var(--g1); }
+
+/* ──────── SEARCH ──────── */
+.search-wrap { position: relative; margin-bottom: 12px; }
+.search-wrap svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: var(--text3); pointer-events: none; }
+.search-wrap input { padding-left: 34px; }
+
+/* ──────── SUPPLIER BADGE ──────── */
+.supplier-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--g7); color: var(--g2);
+  padding: 4px 10px 4px 6px;
+  border-radius: 20px; font-size: 12px; font-weight: 600;
+}
+
+/* ──────── TOAST ──────── */
+.toast {
+  position: fixed; top: calc(70px + var(--st)); left: 50%; transform: translateX(-50%);
+  background: var(--g1); color: #fff;
+  padding: 10px 20px; border-radius: 20px;
+  font-size: 14px; font-weight: 500;
+  z-index: 999; pointer-events: none;
+  opacity: 0; transition: opacity 0.3s;
+  white-space: nowrap;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+}
+.toast.show { opacity: 1; }
+
+/* ──────── UTILS ──────── */
+.flex { display: flex; align-items: center; }
+.gap-8 { gap: 8px; }
+.gap-12 { gap: 12px; }
+.mt-8 { margin-top: 8px; }
+.mt-12 { margin-top: 12px; }
+.mt-16 { margin-top: 16px; }
+.text-sm { font-size: 13px; color: var(--text3); }
+.fw-600 { font-weight: 600; }
+.divider { height: 1px; background: var(--border); margin: 16px 0; }
+
+/* ──────── SUPPLIER COLORS ──────── */
+.color-0 { background: #52B788; }
+.color-1 { background: #E9C46A; }
+.color-2 { background: #F4A261; }
+.color-3 { background: #E63946; }
+.color-4 { background: #457B9D; }
+.color-5 { background: #A8DADC; }
+.color-6 { background: #9B5DE5; }
+.color-7 { background: #F15BB5; }
+
+/* Scrollbar hide */
+::-webkit-scrollbar { display: none; }
+
+/* Filter tabs */
+.filter-tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 12px; }
+.filter-tab {
+  white-space: nowrap; padding: 7px 14px;
+  border-radius: 20px; font-size: 13px; font-weight: 500;
+  border: 1px solid var(--border); background: var(--surface);
+  color: var(--text2); cursor: pointer;
+  transition: all 0.15s;
+}
+.filter-tab.active { background: var(--g2); color: #fff; border-color: var(--g2); }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-logo">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2C8 2 5 5 5 9c0 5 7 13 7 13s7-8 7-13c0-4-3-7-7-7z" fill="white" opacity="0.9"/>
+        <circle cx="12" cy="9" r="2.5" fill="rgba(45,106,79,0.6)"/>
+        <path d="M7 17s1-2 5-2 5 2 5 2" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
+      </svg>
+    </div>
+    <div class="header-title">
+      Marché Pro
+      <span class="header-sub" id="header-sub">Gestion des achats</span>
+    </div>
+    <button class="header-action" id="header-add-btn" onclick="openAddModal()">+</button>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- SCREEN: COMMANDES -->
+    <div class="screen active" id="screen-orders">
+      <div class="filter-tabs" id="orders-filter"></div>
+      <div id="orders-list"></div>
+    </div>
+
+    <!-- SCREEN: MARCHÉ -->
+    <div class="screen" id="screen-market">
+      <div id="market-content"></div>
+    </div>
+
+    <!-- SCREEN: MANQUANTS -->
+    <div class="screen" id="screen-missing">
+      <div id="missing-content"></div>
+    </div>
+
+    <!-- SCREEN: PARAMÈTRES -->
+    <div class="screen" id="screen-settings">
+      <p class="section-title">Fournisseurs</p>
+      <div id="suppliers-list"></div>
+      <button class="btn btn-secondary btn-block mt-12" onclick="openModal('modal-add-supplier')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Ajouter un fournisseur
+      </button>
+      <p class="section-title mt-16">Produits</p>
+      <div id="settings-products-section">
+        <div class="input-group">
+          <label>Fournisseur</label>
+          <select id="settings-supplier-select" onchange="renderSettingsProducts()"></select>
+        </div>
+        <div id="settings-products-list"></div>
+        <button class="btn btn-secondary btn-block mt-8" onclick="openAddProductModal()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Ajouter un produit
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TAB BAR -->
+  <div class="tab-bar">
+    <button class="tab-item active" onclick="switchTab('orders')" id="tab-orders">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>
+      <span>Commandes</span>
+    </button>
+    <button class="tab-item" onclick="switchTab('market')" id="tab-market">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 001.97-1.67l1.65-8.33H6"/></svg>
+      <span>Marché</span>
+    </button>
+    <button class="tab-item" onclick="switchTab('missing')" id="tab-missing">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span>Manquants</span>
+    </button>
+    <button class="tab-item" onclick="switchTab('settings')" id="tab-settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      <span>Paramètres</span>
+    </button>
+  </div>
+
+</div>
+
+<!-- ═══════════════ MODALS ═══════════════ -->
+
+<!-- Add Order Modal -->
+<div class="modal-overlay" id="modal-add-order">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Nouvelle commande</div>
+
+    <div class="input-group">
+      <label>Date</label>
+      <input type="date" id="order-date" />
+    </div>
+
+    <div class="input-group">
+      <label>Fournisseur</label>
+      <select id="order-supplier" onchange="renderProductSelector()"></select>
+    </div>
+
+    <div class="input-group" id="product-selector-wrap">
+      <label>Produits et quantités</label>
+      <div class="search-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="product-search" placeholder="Rechercher un produit…" oninput="filterProducts()" />
+      </div>
+      <div class="product-selector" id="product-selector"></div>
+    </div>
+
+    <div class="flex gap-8 mt-16">
+      <button class="btn btn-secondary" style="flex:1" onclick="closeModal('modal-add-order')">Annuler</button>
+      <button class="btn btn-primary" style="flex:2" onclick="saveOrder()">Créer la commande</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Supplier Modal -->
+<div class="modal-overlay" id="modal-add-supplier">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Nouveau fournisseur</div>
+    <div class="input-group">
+      <label>Nom du fournisseur</label>
+      <input type="text" id="new-supplier-name" placeholder="Ex: Grossiste Fruits Paris" />
+    </div>
+    <div class="flex gap-8 mt-16">
+      <button class="btn btn-secondary" style="flex:1" onclick="closeModal('modal-add-supplier')">Annuler</button>
+      <button class="btn btn-primary" style="flex:2" onclick="saveNewSupplier()">Ajouter</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Product Modal -->
+<div class="modal-overlay" id="modal-add-product">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Nouveau produit</div>
+    <div class="input-group">
+      <label>Fournisseur</label>
+      <select id="new-product-supplier"></select>
+    </div>
+    <div class="input-group">
+      <label>Nom du produit</label>
+      <input type="text" id="new-product-name" placeholder="Ex: Tomate cerise" />
+    </div>
+    <div class="flex gap-8 mt-16">
+      <button class="btn btn-secondary" style="flex:1" onclick="closeModal('modal-add-product')">Annuler</button>
+      <button class="btn btn-primary" style="flex:2" onclick="saveNewProduct()">Ajouter</button>
+    </div>
+  </div>
+</div>
+
+<!-- Order Detail / Market View Modal -->
+<div class="modal-overlay" id="modal-order-detail">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div id="order-detail-content"></div>
+    <button class="btn btn-secondary btn-block mt-16" onclick="closeModal('modal-order-detail')">Fermer</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════ DATA ═══════════════
+const COLORS = ['color-0','color-1','color-2','color-3','color-4','color-5','color-6','color-7'];
+
+const DEFAULT_PRODUCTS = [
+  "SPUNTA Espagne","Tomate ronde","PIMENT FORT vert foncé","CITRON VERT","CITRON JAUNE",
+  "PIMENT BLANC","POIVRON LONG ROUGE KAPIA","POIVRON LONG VERT","PATATE DOUCE","AUBERGINE plateau",
+  "FÈVE","FENOUIL","CHOUX FLEUR ALLEMAGNE","AIL","GINGEMBRE",
+  "OIGNON ROUGE 5kg","Oignon rouge vrac","OIGNON BLANC","OIGNON JAUNE espagne sac 10kg","Tomate ronde (vrac)",
+  "NAVET MARTEAU","NAVET VIOLET","MINI CONCOMBRE","CONCOMBRE LONG","COURGETTE VERTE",
+  "COURGETTE BLANCHE","CAROTTE","ÉCHALOTTE","OIGNON 5 Kg","POMME DE TERRE 5 KG",
+  "NECTARINE JAUNE","Nectarine blanche","CLÉMENTINE cartons noire","FRUIT DU DRAGON gros","PASTÈQUE gros",
+  "CHOUX BLANC","RAISIN BLANC SANS PÉPIN","RAISIN NOIR","RAISIN GLOBE","ARTICHAUD la pièce",
+  "HARICOT VERT","MANGUE AVION","MANGUE BATEAU","PETIT POIS","POIVRON CARRÉ ROUGE",
+  "POIVRON CARRÉ VERT","POIVRON CARRÉ JAUNE","BETTERAVE crue","BETTERAVE SOUS VIDE","OKRA GOMBO PETITE",
+  "ANETH","CIBOULETTE","THYM","ROMARIN","LAURIER",
+  "CÉLERI","Batavia","ÉPINARD","POIREAU","ICE BERG",
+  "CARDON","CHOUX ROUGE","GRENADE À MANGER","MELON VERT","MELON JAUNE",
+  "ANANAS","POMME GOLDEN","POMME GALA ROUGE","POMME PINK LYDIE","KIWI GOLD",
+  "AVOCAT","FRAISE BARQUETTE 1 KG","ORANGE DOUX","ORANGE À JUS","ORANGE À MANGER gros",
+  "CHÉRIMOYA","CERISE 2 kg","POIRE PM abat","POIRE Comice","Poire FRED",
+  "TOMATE CERISE grappe","CHAMPIGNON vrac","Banane","Ail épluché","Courge",
+  "Litchi","Coing","Pomme nouveau","Kaki","Fruit de la passion",
+  "BROCOLIS","OIGNON FRAIS","PAPAYE","FIGUE FRAÎCHE"
+];
+
+let db = {
+  suppliers: [
+    {
+      id: 'sup-1',
+      name: 'Fournisseur Principal',
+      color: 'color-0',
+      products: DEFAULT_PRODUCTS.map((p,i) => ({ id: 'p-' + i, name: p }))
+    }
+  ],
+  orders: []
+};
+
+function loadDB() {
+  const saved = localStorage.getItem('marche_pro_v2');
+  if (saved) {
+    try { db = JSON.parse(saved); } catch(e) {}
+  }
+}
+function saveDB() {
+  localStorage.setItem('marche_pro_v2', JSON.stringify(db));
+}
+
+loadDB();
+
+// ═══════════════ NAVIGATION ═══════════════
+let currentTab = 'orders';
+let currentMarketOrderId = null;
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+  document.getElementById('screen-' + (tab === 'orders' ? 'orders' : tab === 'market' ? 'market' : tab === 'missing' ? 'missing' : 'settings')).classList.add('active');
+  document.getElementById('tab-' + tab).classList.add('active');
+
+  const subs = { orders: 'Mes listes d\'achats', market: 'Cocher les achats', missing: 'Produits non achetés', settings: 'Fournisseurs & produits' };
+  const addBtns = { orders: true, market: false, missing: false, settings: false };
+  document.getElementById('header-sub').textContent = subs[tab];
+  document.getElementById('header-add-btn').style.display = addBtns[tab] ? '' : 'none';
+
+  if (tab === 'orders') renderOrders();
+  if (tab === 'market') renderMarket();
+  if (tab === 'missing') renderMissing();
+  if (tab === 'settings') renderSettings();
+}
+
+// ═══════════════ MODALS ═══════════════
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+function openAddModal() {
+  // set today's date
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('order-date').value = today;
+  populateOrderSupplierSelect();
+  renderProductSelector();
+  openModal('modal-add-order');
+}
+
+// close modals on backdrop click
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) overlay.classList.remove('open');
+  });
+});
+
+// ═══════════════ TOAST ═══════════════
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ═══════════════ ORDERS SCREEN ═══════════════
+function renderOrders() {
+  // Filter tabs
+  const filterEl = document.getElementById('orders-filter');
+  const suppliers = ['Tous', ...db.suppliers.map(s => s.name)];
+  let activeFilter = filterEl.dataset.filter || 'Tous';
+  filterEl.innerHTML = suppliers.map(s =>
+    `<button class="filter-tab ${s === activeFilter ? 'active' : ''}" onclick="setOrderFilter('${s}')">${s}</button>`
+  ).join('');
+
+  const listEl = document.getElementById('orders-list');
+  let orders = [...db.orders].sort((a,b) => new Date(b.date) - new Date(a.date));
+
+  if (activeFilter !== 'Tous') {
+    const sup = db.suppliers.find(s => s.name === activeFilter);
+    if (sup) orders = orders.filter(o => o.supplierId === sup.id);
+  }
+
+  if (orders.length === 0) {
+    listEl.innerHTML = `<div class="empty-state">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+      <p>Aucune commande.<br>Appuyez sur <b>+</b> pour créer une liste.</p>
+    </div>`;
+    return;
+  }
+
+  listEl.innerHTML = orders.map(order => {
+    const sup = db.suppliers.find(s => s.id === order.supplierId) || { name: 'Inconnu', color: 'color-0' };
+    const total = order.items.length;
+    const bought = order.items.filter(i => i.bought).length;
+    const pct = total ? Math.round(bought/total*100) : 0;
+    const dateStr = formatDate(order.date);
+    const statusBadge = bought === total && total > 0
+      ? `<span class="badge badge-green">Complet</span>`
+      : bought > 0 ? `<span class="badge badge-yellow">${pct}%</span>`
+      : `<span class="badge badge-gray">Nouveau</span>`;
+    return `<div class="order-item">
+      <div class="order-item-header">
+        <div class="order-date-badge">${dateStr}</div>
+        <div class="order-info">
+          <div class="order-supplier">${sup.name}</div>
+          <div class="order-stats">${bought}/${total} produits achetés ${statusBadge}</div>
+        </div>
+        <div class="order-actions">
+          <button class="icon-btn icon-btn-market" onclick="goToMarket('${order.id}')" title="Mode marché">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 001.97-1.67l1.65-8.33H6"/></svg>
+          </button>
+          <button class="icon-btn icon-btn-del" onclick="deleteOrder('${order.id}')" title="Supprimer">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function setOrderFilter(name) {
+  document.getElementById('orders-filter').dataset.filter = name;
+  renderOrders();
+}
+
+function goToMarket(orderId) {
+  currentMarketOrderId = orderId;
+  switchTab('market');
+}
+
+function deleteOrder(id) {
+  if (!confirm('Supprimer cette commande ?')) return;
+  db.orders = db.orders.filter(o => o.id !== id);
+  saveDB();
+  renderOrders();
+  toast('Commande supprimée');
+}
+
+// ═══════════════ MARKET SCREEN ═══════════════
+function renderMarket() {
+  const el = document.getElementById('market-content');
+
+  if (db.orders.length === 0) {
+    el.innerHTML = `<div class="empty-state">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 001.97-1.67l1.65-8.33H6"/></svg>
+      <p>Aucune commande à traiter.<br>Créez une liste depuis l'onglet Commandes.</p>
+    </div>`;
+    return;
+  }
+
+  // If a specific order is selected
+  if (currentMarketOrderId) {
+    const order = db.orders.find(o => o.id === currentMarketOrderId);
+    if (order) {
+      renderMarketOrder(el, order);
+      return;
+    }
+  }
+
+  // Show latest unfinished order or selector
+  const active = db.orders.filter(o => o.items.some(i => !i.bought));
+  if (active.length === 0) {
+    el.innerHTML = `<div class="empty-state">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      <p>🎉 Toutes les commandes sont complètes !</p>
+    </div>`;
+    return;
+  }
+
+  // Show order selector
+  const orders = [...db.orders].sort((a,b) => new Date(b.date) - new Date(a.date));
+  el.innerHTML = `<p class="section-title">Choisir une commande</p>` +
+    orders.map(order => {
+      const sup = db.suppliers.find(s => s.id === order.supplierId) || { name: '?', color: 'color-0' };
+      const total = order.items.length;
+      const bought = order.items.filter(i => i.bought).length;
+      return `<div class="card" onclick="selectMarketOrder('${order.id}')" style="cursor:pointer">
+        <div class="card-header">
+          <div class="dot ${sup.color}"></div>
+          <div style="flex:1">
+            <div class="fw-600">${sup.name}</div>
+            <div class="text-sm">${formatDate(order.date)} · ${bought}/${total} achetés</div>
+          </div>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+      </div>`;
+    }).join('');
+}
+
+function selectMarketOrder(id) {
+  currentMarketOrderId = id;
+  renderMarket();
+}
+
+function renderMarketOrder(el, order) {
+  const sup = db.suppliers.find(s => s.id === order.supplierId) || { name: '?', color: 'color-0' };
+  const total = order.items.length;
+  const bought = order.items.filter(i => i.bought).length;
+  const pct = total ? Math.round(bought/total*100) : 0;
+
+  el.innerHTML = `
+    <div class="flex gap-8 mt-8" style="margin-bottom:14px">
+      <button class="btn btn-secondary btn-sm" onclick="currentMarketOrderId=null;renderMarket()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+        Retour
+      </button>
+      <div class="supplier-pill"><div class="dot ${sup.color}" style="width:8px;height:8px"></div>${sup.name}</div>
+      <span class="text-sm" style="margin-left:auto">${formatDate(order.date)}</span>
+    </div>
+    <div class="market-progress">
+      <div class="flex gap-8"><span class="fw-600" style="font-size:15px">Progression</span><span class="badge ${bought===total?'badge-green':'badge-yellow'}">${pct}%</span></div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${pct}%"></div></div>
+      <div class="progress-text"><span>${bought} achetés</span><span>${total - bought} restants</span></div>
+    </div>
+    <div class="card">
+      <div class="card-body" style="padding-top:10px" id="market-items">
+        ${order.items.map(item => `
+          <div class="product-row" id="row-${item.id}">
+            <div class="product-check ${item.bought ? 'checked' : ''}" onclick="toggleItem('${order.id}','${item.id}')"></div>
+            <span class="product-name ${item.bought ? 'bought' : ''}">${item.name}</span>
+            <span class="product-qty">${item.quantity}</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>`;
+}
+
+function toggleItem(orderId, itemId) {
+  const order = db.orders.find(o => o.id === orderId);
+  if (!order) return;
+  const item = order.items.find(i => i.id === itemId);
+  if (!item) return;
+  item.bought = !item.bought;
+  saveDB();
+
+  // Update UI without full re-render
+  const row = document.getElementById('row-' + itemId);
+  if (row) {
+    const check = row.querySelector('.product-check');
+    const name = row.querySelector('.product-name');
+    check.classList.toggle('checked', item.bought);
+    name.classList.toggle('bought', item.bought);
+  }
+
+  // Update progress
+  const total = order.items.length;
+  const bought = order.items.filter(i => i.bought).length;
+  const pct = total ? Math.round(bought/total*100) : 0;
+  const progFill = document.querySelector('.progress-bar-fill');
+  if (progFill) progFill.style.width = pct + '%';
+  const progText = document.querySelector('.progress-text');
+  if (progText) {
+    progText.children[0].textContent = bought + ' achetés';
+    progText.children[1].textContent = (total - bought) + ' restants';
+  }
+  const badge = document.querySelector('.market-progress .badge');
+  if (badge) {
+    badge.textContent = pct + '%';
+    badge.className = 'badge ' + (bought === total ? 'badge-green' : 'badge-yellow');
+  }
+}
+
+// ═══════════════ MISSING SCREEN ═══════════════
+function renderMissing() {
+  const el = document.getElementById('missing-content');
+
+  if (db.orders.length === 0) {
+    el.innerHTML = `<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><p>Aucune commande pour l'instant.</p></div>`;
+    return;
+  }
+
+  // Build missing items per supplier across all orders (or last order per supplier)
+  // Group by supplier
+  const missingBySup = {};
+  db.orders.forEach(order => {
+    const missing = order.items.filter(i => !i.bought);
+    if (missing.length === 0) return;
+    const sup = db.suppliers.find(s => s.id === order.supplierId) || { id: 'unknown', name: 'Inconnu', color: 'color-0' };
+    if (!missingBySup[sup.id]) missingBySup[sup.id] = { sup, orders: [] };
+    missingBySup[sup.id].orders.push({ order, missing });
+  });
+
+  if (Object.keys(missingBySup).length === 0) {
+    el.innerHTML = `<div class="empty-state">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      <p>🎉 Tous les produits ont été achetés !</p>
+    </div>`;
+    return;
+  }
+
+  el.innerHTML = Object.values(missingBySup).map(({ sup, orders }) => {
+    const allMissing = orders.flatMap(({ order, missing }) =>
+      missing.map(m => ({ ...m, orderDate: order.date }))
+    );
+    return `<div class="supplier-section">
+      <div class="supplier-section-header">
+        <div class="dot ${sup.color}"></div>
+        <span class="fw-600" style="font-size:15px;flex:1">${sup.name}</span>
+        <span class="badge badge-red">${allMissing.length} manquant${allMissing.length>1?'s':''}</span>
+      </div>
+      <div class="supplier-section-body">
+        ${allMissing.map(item => `
+          <div class="missing-item">
+            <div class="missing-dot"></div>
+            <span style="flex:1;font-size:14px">${item.name}</span>
+            <span class="product-qty">${item.quantity}</span>
+            <span class="text-sm" style="margin-left:6px">${formatDate(item.orderDate)}</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════ SETTINGS SCREEN ═══════════════
+function renderSettings() {
+  // Suppliers
+  const el = document.getElementById('suppliers-list');
+  el.innerHTML = db.suppliers.map((sup, idx) => `
+    <div class="card" style="margin-bottom:8px">
+      <div class="card-header" style="cursor:default">
+        <div class="dot ${sup.color}"></div>
+        <span class="fw-600" style="flex:1">${sup.name}</span>
+        <span class="badge badge-gray">${sup.products.length} produits</span>
+        ${db.suppliers.length > 1 ? `<button class="icon-btn icon-btn-del" style="margin-left:8px" onclick="deleteSupplier('${sup.id}')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
+        </button>` : ''}
+      </div>
+    </div>
+  `).join('');
+
+  // Supplier selector for products
+  const sel = document.getElementById('settings-supplier-select');
+  sel.innerHTML = db.suppliers.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+  renderSettingsProducts();
+}
+
+function renderSettingsProducts() {
+  const supId = document.getElementById('settings-supplier-select').value;
+  const sup = db.suppliers.find(s => s.id === supId);
+  if (!sup) return;
+  const el = document.getElementById('settings-products-list');
+  if (sup.products.length === 0) {
+    el.innerHTML = `<p class="text-sm" style="text-align:center;padding:12px">Aucun produit pour ce fournisseur.</p>`;
+    return;
+  }
+  el.innerHTML = `<div class="card"><div style="padding:0 16px">` +
+    sup.products.map(p => `
+      <div class="product-row">
+        <span class="product-name" style="flex:1">${p.name}</span>
+        <button class="icon-btn icon-btn-del" onclick="deleteProduct('${supId}','${p.id}')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+    `).join('') + `</div></div>`;
+}
+
+function deleteSupplier(id) {
+  if (!confirm('Supprimer ce fournisseur et tous ses produits ?')) return;
+  db.suppliers = db.suppliers.filter(s => s.id !== id);
+  saveDB();
+  renderSettings();
+  toast('Fournisseur supprimé');
+}
+
+function deleteProduct(supId, productId) {
+  const sup = db.suppliers.find(s => s.id === supId);
+  if (!sup) return;
+  sup.products = sup.products.filter(p => p.id !== productId);
+  saveDB();
+  renderSettingsProducts();
+  toast('Produit supprimé');
+}
+
+function openAddProductModal() {
+  const sel = document.getElementById('new-product-supplier');
+  sel.innerHTML = db.suppliers.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+  const current = document.getElementById('settings-supplier-select').value;
+  sel.value = current;
+  document.getElementById('new-product-name').value = '';
+  openModal('modal-add-product');
+}
+
+function saveNewProduct() {
+  const supId = document.getElementById('new-product-supplier').value;
+  const name = document.getElementById('new-product-name').value.trim();
+  if (!name) { toast('Nom du produit requis'); return; }
+  const sup = db.suppliers.find(s => s.id === supId);
+  if (!sup) return;
+  sup.products.push({ id: 'p-' + Date.now(), name });
+  saveDB();
+  closeModal('modal-add-product');
+  renderSettings();
+  toast('Produit ajouté ✓');
+}
+
+// ═══════════════ ADD SUPPLIER ═══════════════
+function saveNewSupplier() {
+  const name = document.getElementById('new-supplier-name').value.trim();
+  if (!name) { toast('Nom requis'); return; }
+  const colorIdx = db.suppliers.length % COLORS.length;
+  db.suppliers.push({ id: 'sup-' + Date.now(), name, color: COLORS[colorIdx], products: [] });
+  saveDB();
+  closeModal('modal-add-supplier');
+  renderSettings();
+  toast('Fournisseur ajouté ✓');
+  document.getElementById('new-supplier-name').value = '';
+}
+
+// ═══════════════ ADD ORDER ═══════════════
+let selectedProducts = {}; // { productId: qty }
+
+function populateOrderSupplierSelect() {
+  const sel = document.getElementById('order-supplier');
+  sel.innerHTML = db.suppliers.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+}
+
+function renderProductSelector() {
+  selectedProducts = {};
+  filterProducts();
+}
+
+function filterProducts() {
+  const supId = document.getElementById('order-supplier').value;
+  const sup = db.suppliers.find(s => s.id === supId);
+  if (!sup) return;
+  const query = (document.getElementById('product-search').value || '').toLowerCase();
+  const products = sup.products.filter(p => p.name.toLowerCase().includes(query));
+
+  const el = document.getElementById('product-selector');
+  el.innerHTML = products.map(p => {
+    const isSel = selectedProducts[p.id] !== undefined;
+    const qty = selectedProducts[p.id] || 1;
+    return `<div class="product-selector-item ${isSel ? 'selected' : ''}" id="sel-${p.id}" onclick="toggleProductSelect('${p.id}','${supId}')">
+      <div class="checkbox"></div>
+      <span class="product-selector-item-name">${p.name}</span>
+      <input class="qty-input-small" type="number" min="1" value="${qty}"
+        id="qty-${p.id}"
+        onclick="event.stopPropagation()"
+        oninput="updateQty('${p.id}',this.value)" />
+    </div>`;
+  }).join('');
+}
+
+function toggleProductSelect(productId, supId) {
+  if (selectedProducts[productId] !== undefined) {
+    delete selectedProducts[productId];
+  } else {
+    selectedProducts[productId] = 1;
+  }
+  filterProducts(); // re-render keeping selections
+}
+
+function updateQty(productId, val) {
+  const n = parseInt(val) || 1;
+  selectedProducts[productId] = n;
+}
+
+function saveOrder() {
+  const date = document.getElementById('order-date').value;
+  const supId = document.getElementById('order-supplier').value;
+  if (!date) { toast('Date requise'); return; }
+  if (Object.keys(selectedProducts).length === 0) { toast('Sélectionnez au moins un produit'); return; }
+
+  const sup = db.suppliers.find(s => s.id === supId);
+  // Read actual qty values from inputs
+  Object.keys(selectedProducts).forEach(pid => {
+    const input = document.getElementById('qty-' + pid);
+    if (input) selectedProducts[pid] = parseInt(input.value) || 1;
+  });
+
+  const items = Object.entries(selectedProducts).map(([pid, qty]) => {
+    const product = sup.products.find(p => p.id === pid);
+    return { id: 'item-' + Date.now() + '-' + pid, productId: pid, name: product ? product.name : pid, quantity: qty, bought: false };
+  });
+
+  db.orders.push({ id: 'order-' + Date.now(), date, supplierId: supId, items });
+  saveDB();
+  closeModal('modal-add-order');
+  selectedProducts = {};
+  renderOrders();
+  toast('Commande créée ✓');
+}
+
+// ═══════════════ UTILS ═══════════════
+function formatDate(dateStr) {
+  if (!dateStr) return '';
+  const [y,m,d] = dateStr.split('-');
+  const months = ['jan','fév','mar','avr','mai','jun','jul','aoû','sep','oct','nov','déc'];
+  return `${parseInt(d)} ${months[parseInt(m)-1]}`;
+}
+
+// ═══════════════ INIT ═══════════════
+renderOrders();
+</script>
+</body>
+</html>
